@@ -6,6 +6,11 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#010101">
 <title>Banklio</title>
+<script>
+if (window.matchMedia && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.documentElement.classList.add('entrance-running');
+}
+</script>
 <style>
 @font-face{font-family:'Urbanist';font-style:normal;font-weight:300;font-display:block;src:url(assets/urbanist-300.woff2) format('woff2');}
 @font-face{font-family:'Urbanist';font-style:normal;font-weight:400;font-display:block;src:url(assets/urbanist-400.woff2) format('woff2');}
@@ -448,6 +453,44 @@ h1 .l2{background-image:linear-gradient(90deg,
 }
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* One opening sequence. The class is removed when the final card settles. */
+@media (prefers-reduced-motion:no-preference){
+  @keyframes entrance-nav{
+    from{opacity:0;transform:translateY(-8px)}
+    to{opacity:1;transform:none}
+  }
+  @keyframes entrance-support{
+    from{opacity:0;transform:translateY(9px)}
+    to{opacity:1;transform:none}
+  }
+  @keyframes entrance-title{
+    from{opacity:0;clip-path:inset(0 0 100% 0);transform:translateY(12px)}
+    to{opacity:1;clip-path:inset(0 0 0 0);transform:none}
+  }
+  @keyframes entrance-card{
+    from{opacity:0;transform:translateY(14px) scale(.985)}
+    to{opacity:1;transform:none}
+  }
+  html.entrance-running .brand{animation:entrance-nav .58s cubic-bezier(.2,.7,.2,1) .03s both}
+  html.entrance-running .badge{animation:entrance-support .52s cubic-bezier(.2,.7,.2,1) .26s both}
+  html.entrance-running h1{animation:entrance-title .86s cubic-bezier(.22,.75,.18,1) .43s both}
+  html.entrance-running .sub{animation:entrance-support .55s cubic-bezier(.2,.7,.2,1) .76s both}
+  html.entrance-running .cta .btn-primary{animation:entrance-support .51s cubic-bezier(.2,.7,.2,1) .96s both}
+  html.entrance-running .cta .btn-ghost{animation:entrance-support .51s cubic-bezier(.2,.7,.2,1) 1.05s both}
+  html.entrance-running .c2{animation:entrance-card .78s cubic-bezier(.2,.7,.18,1) 1.16s both}
+}
+@media (prefers-reduced-motion:no-preference) and (min-width:663px){
+  html.entrance-running .links{animation:entrance-nav .53s cubic-bezier(.2,.7,.2,1) .13s both}
+  html.entrance-running .actions{animation:entrance-nav .53s cubic-bezier(.2,.7,.2,1) .2s both}
+}
+@media (prefers-reduced-motion:no-preference) and (max-width:662.98px){
+  html.entrance-running .menu-btn{animation:entrance-nav .53s cubic-bezier(.2,.7,.2,1) .13s both}
+}
+@media (prefers-reduced-motion:no-preference) and (min-width:977px) and (min-aspect-ratio:1/1){
+  html.entrance-running .c1{animation:entrance-card .72s cubic-bezier(.2,.7,.18,1) 1.36s both}
+  html.entrance-running .c3{animation:entrance-card .72s cubic-bezier(.2,.7,.18,1) 1.46s both}
+}
 </style>
 </head>
 <body>
@@ -592,6 +635,21 @@ h1 .l2{background-image:linear-gradient(90deg,
   sw.addEventListener('click',()=>sw.classList.toggle('spin'));
   const eye=document.getElementById('eye'),bal=document.getElementById('balance'),val=bal.textContent;
   eye.addEventListener('click',()=>{const h=eye.getAttribute('aria-pressed')!=='true';eye.setAttribute('aria-pressed',h);eye.setAttribute('aria-label',h?'Show balance':'Hide balance');bal.textContent=h?'$ ••••••':val;});
+
+  const root=document.documentElement;
+  if(root.classList.contains('entrance-running')){
+    const row=matchMedia('(min-width:977px) and (min-aspect-ratio:1/1)').matches;
+    const lastCard=document.querySelector(row?'.c3':'.c2');
+    let fallback;
+    const finish=()=>{
+      lastCard.removeEventListener('animationend',onEnd);
+      clearTimeout(fallback);
+      root.classList.remove('entrance-running');
+    };
+    const onEnd=e=>{if(e.target===lastCard&&e.animationName==='entrance-card')finish()};
+    lastCard.addEventListener('animationend',onEnd);
+    fallback=setTimeout(finish,2700);
+  }
 })();
 </script>
 </body>
